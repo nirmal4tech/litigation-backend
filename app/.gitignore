@@ -23,3 +23,9 @@ ENV/
 dist/
 build/
 *.egg-info/
+
+.git/
+Scripts/
+pyvenv.cfg
+__pycache__/
+*.pyc

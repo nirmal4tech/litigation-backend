@@ -1,11 +1,11 @@
 from pydantic import BaseModel
+from pydantic import ConfigDict
 
 class CaseTypeOut(BaseModel):
     slug: str
     title: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StageOut(BaseModel):
@@ -13,5 +13,4 @@ class StageOut(BaseModel):
     title: str
     short_desc: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

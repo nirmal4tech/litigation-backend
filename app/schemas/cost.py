@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
+from pydantic import ConfigDict
 
 class CostCreate(BaseModel):
     case_id: str
@@ -19,5 +20,4 @@ class CostOut(BaseModel):
     entry_date: date
     stage_slug: str | None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

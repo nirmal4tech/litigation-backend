@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
+from pydantic import ConfigDict
 
 class DiaryCreate(BaseModel):
     case_id: str
@@ -17,5 +18,4 @@ class DiaryOut(BaseModel):
     what_happened: str
     personal_note: str | None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

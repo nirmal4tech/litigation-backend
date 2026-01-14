@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+
 from app.core.database import SessionLocal
+from app.dependencies.auth import get_current_user
+from app.models.case import Case
 from app.models.hearing import HearingEntry, HearingStageSelection
 from app.models.meta import Stage
-from app.models.user import User
+from app.services.access import is_user_paid
 
 router = APIRouter()
 
@@ -15,9 +19,17 @@ def get_db():
         db.close()
 
 @router.get("/")
-def case_history(case_id: str, db: Session = Depends(get_db)):
+def case_history(case_id: str, user=Depends(get_current_user), db: Session = Depends(get_db)):
 
-    rows = db.query(
+    case = db.query(Case).filter(
+        Case.id == case_id,
+        Case.user_id == user.id
+    ).first()
+
+    if not case:
+        raise HTTPException(404, "Case not found")
+
+    query = db.query(
         HearingEntry.id,
         HearingEntry.created_at,
         HearingEntry.raw_text,
@@ -30,12 +42,15 @@ def case_history(case_id: str, db: Session = Depends(get_db)):
         Stage,
         Stage.slug == HearingStageSelection.stage_slug
     ).filter(
-        HearingEntry.case_id == case_id
-    ).filter(
+        HearingEntry.case_id == case_id,
         HearingEntry.is_archived == False
-    ).order_by(
-        HearingEntry.created_at.asc()
-    ).all()
+    )
+
+    if not is_user_paid(user):
+        limit_date = datetime.utcnow() - timedelta(days=30)
+        query = query.filter(HearingEntry.created_at >= limit_date)
+
+    rows = query.order_by(HearingEntry.created_at.asc()).all()
 
     return [
         {
