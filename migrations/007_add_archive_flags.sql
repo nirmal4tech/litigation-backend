@@ -1,0 +1,3 @@
+ALTER TABLE diary_entries ADD COLUMN is_archived BOOLEAN DEFAULT FALSE;
+ALTER TABLE hearing_entries ADD COLUMN is_archived BOOLEAN DEFAULT FALSE;
+ALTER TABLE cost_entries ADD COLUMN is_archived BOOLEAN DEFAULT FALSE;
